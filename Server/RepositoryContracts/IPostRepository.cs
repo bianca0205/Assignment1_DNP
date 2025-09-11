@@ -4,7 +4,7 @@ namespace RepositoryContracts;
 
 public class IPostRepository
 {
-    Task <Post> AddSync(Post post)
+    Task<Post> AddSync(Post post)
     {
         throw new NotImplementedException();
     }

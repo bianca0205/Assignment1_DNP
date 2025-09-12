@@ -2,7 +2,7 @@
 using RepositoryContracts;
 namespace InMemoryRepositories;
 
-public class UserInMemoryRepository
+public class UserInMemoryRepository:IUserRepository
 {
     private List<User> users = new List<User>();
 

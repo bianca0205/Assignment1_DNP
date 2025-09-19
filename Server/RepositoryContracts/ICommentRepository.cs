@@ -1,30 +1,11 @@
 ﻿using Entities;
 namespace RepositoryContracts;
 
-public class ICommentRepository
+public interface ICommentRepository
 {
-    Task<Comment> AddAsync(Comment comment)
-    {
-        throw new NotImplementedException();
-    }
-
-    Task UpdateAsync(Comment comment)
-    {
-        throw new NotImplementedException();
-    }
-
-    Task DeleteAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    Task<Comment> GetSingleAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    IQueryable<Comment> GetManyAsync()
-    {
-        throw new NotImplementedException();
-    }
+    Task<Comment> AddAsync(Comment comment);
+    Task UpdateAsync(Comment comment);
+    Task DeleteAsync(int id);
+    Task<Comment> GetSingleAsync(int id);
+    IQueryable<Comment> GetManyAsync();
 }

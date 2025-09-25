@@ -38,6 +38,8 @@ public class ManagePostsView
                     Console.WriteLine("Invalid choice. Please try again.");
                     break;
             }
+            Console.WriteLine("\nPress any key to continue...");
+            Console.ReadKey();
         }
     }
     private void ShowPostMenu()

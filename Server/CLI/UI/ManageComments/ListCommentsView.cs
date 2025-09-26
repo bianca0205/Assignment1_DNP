@@ -16,7 +16,7 @@ public class ListCommentsView
         Console.Clear();
         Console.WriteLine("=== List of Comments ===");
         
-        var comments =  commentRepository.GetManyAsync().ToList();
+        var comments =  commentRepository.GetMany().ToList();
         if (comments.Count == 0)
         {
             Console.WriteLine("No comments available.");

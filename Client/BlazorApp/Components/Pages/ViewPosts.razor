@@ -1,6 +1,78 @@
-﻿@page "/ViewPosts"
-<h3>ViewPosts</h3>
+﻿@page "/posts"
+@using ApiContracts.Post
+@using BlazorApp.Services.Post
+@inject IPostService PostService
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<h3>All Posts</h3>
+
+<div class="mb-3">
+    <button class="btn btn-success" @onclick="NavigateToCreate">Create New
+        Post
+    </button>
+</div>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+@if (isLoading)
+{
+    <p>Loading posts...</p>
+}
+else if (posts == null || !posts.Any())
+{
+    <p>No posts available.</p>
+}
+else
+{
+    <div class="list-group">
+        @foreach (var post in posts)
+        {
+            <a href="/posts/@post.Id"
+               class="list-group-item list-group-item-action">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">@post.Title</h5>
+                    <small>by @post.UserId</small>
+                </div>
+            </a>
+        }
+    </div>
+}
 
 @code {
-    
+    private IEnumerable<PostDto>? posts;
+    private bool isLoading = true;
+    private string errorMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPosts();
+    }
+
+    private async Task LoadPosts()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = string.Empty;
+            posts = await PostService.GetPostsAsync();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading posts: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void NavigateToCreate()
+    {
+        NavigationManager.NavigateTo("/create-post");
+    }
+
 }

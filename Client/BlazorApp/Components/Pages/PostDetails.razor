@@ -1,6 +1,157 @@
-﻿@page "/PostDetails"
-<h3>PostDetails</h3>
+﻿@page "/posts/{Id:int}"
+@using ApiContracts.Comment
+@using ApiContracts.Post
+@using BlazorApp.Services.Comment
+@using BlazorApp.Services.Post
+@inject IPostService PostService
+@inject ICommentService CommentService
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<h3>Post Details</h3>
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+@if (isLoading)
+{
+    <p>Loading post...</p>
+}
+else if (post == null)
+{
+    <p>Post not found.</p>
+}
+else
+{
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>@post.Title</h4>
+            <small class="text-muted">by @post.UserId</small>
+        </div>
+        <div class="card-body">
+            <p>@post.Body</p>
+        </div>
+    </div>
+
+    <h4>Comments</h4>
+    
+    @if (comments == null || !comments.Any())
+    {
+        <p>No comments yet.</p>
+    }
+    else
+    {
+        <div class="mb-3">
+            @foreach (var comment in comments)
+            {
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <p class="mb-1">@comment.Body</p>
+                        <small class="text-muted">by @comment.UserId</small>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-header">
+            <h5>Add a Comment</h5>
+        </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <label class="form-label">Your Comment:</label>
+                <textarea class="form-control" rows="3" @bind="newCommentBody"></textarea>
+            </div>
+            <button class="btn btn-primary" @onclick="AddComment">Post Comment</button>
+        </div>
+    </div>
+}
+
+<div class="mt-3">
+    <button class="btn btn-secondary" @onclick="GoBack">Back to Posts</button>
+</div>
 
 @code {
-    
+    [Parameter]
+    public int Id { get; set; }
+
+    private PostDto? post;
+    private IEnumerable<CommentDto>? comments;
+    private string newCommentBody = string.Empty;
+    private bool isLoading = true;
+    private string errorMessage = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPost();
+        await LoadComments();
+    }
+
+    private async Task LoadPost()
+    {
+        try
+        {
+            isLoading = true;
+            errorMessage = string.Empty;
+            post = await PostService.GetPostByIdAsync(Id);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading post: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task LoadComments()
+    {
+        try
+        {
+            errorMessage = string.Empty;
+            comments = await CommentService.GetCommentsByPostIdAsync(Id);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error loading comments: {ex.Message}";
+        }
+    }
+
+    private async Task AddComment()
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(newCommentBody))
+            {
+                errorMessage = "Comment cannot be empty.";
+                return;
+            }
+
+            errorMessage = string.Empty;
+            
+            CreateCommentDto dto = new CreateCommentDto
+            {
+                Body = newCommentBody,
+                PostId = Id,
+                UserId = 1 // Hardcoded as per assignment instructions
+            };
+
+            await CommentService.AddCommentAsync(dto);
+            newCommentBody = string.Empty;
+            await LoadComments(); // Reload comments to show the new one
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error adding comment: {ex.Message}";
+        }
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/posts");
+    }
 }

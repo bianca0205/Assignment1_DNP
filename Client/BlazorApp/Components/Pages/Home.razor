@@ -1,22 +1,16 @@
 ﻿@page "/"
-
+@inject NavigationManager NavMgr
 <PageTitle>Home</PageTitle>
 
-<h1>Welcome to the Forum!</h1>
+<h1>Reddit Clone</h1>
 
-<p>Navigate to:</p>
-
-<div class="list-group" style="max-width: 400px;">
-    <a href="/create-user" class="list-group-item list-group-item-action">
-        <h5 class="mb-1">Create New User</h5>
-        <p class="mb-1">Register a new user account</p>
-    </a>
-    <a href="/posts" class="list-group-item list-group-item-action">
-        <h5 class="mb-1">View Posts</h5>
-        <p class="mb-1">Browse all posts</p>
-    </a>
-    <a href="/create-post" class="list-group-item list-group-item-action">
-        <h5 class="mb-1">Create New Post</h5>
-        <p class="mb-1">Share something new</p>
-    </a>
-</div>
+<AuthorizeView>
+    <Authorized>
+        <h3>Hello, @context.User.Identity.Name</h3> 
+    </Authorized> 
+    <NotAuthorized>
+        lol you are not logged in!
+    </NotAuthorized>
+</AuthorizeView> 
+Here you can browse interesting posts. 
+<button @onclick='() => NavMgr.NavigateTo("login")'>go to login</button>

@@ -70,4 +70,10 @@ public class UserFileRepository : IUserRepository
         List<User>? users = JsonSerializer.Deserialize<List<User>>(usersAsJson);
         return users.AsQueryable();
     }
+
+    public async Task<User> GetByUsernameAsync(string username)
+    {
+        var users = await LoadUsersAsync();
+        return users.FirstOrDefault(u => u.UserName == username);
+    }
 }

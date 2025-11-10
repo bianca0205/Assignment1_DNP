@@ -182,7 +182,7 @@ public class SubForumsController : ControllerBase
         }
     }
 
-    // --- Private helper ---
+    // Private helper
     private async Task VerifyNameIsAvailableAsync(string name)
     {
         var existing = subForumRepo.GetManyAsync()

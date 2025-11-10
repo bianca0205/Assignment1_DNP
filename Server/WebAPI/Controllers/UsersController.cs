@@ -116,7 +116,7 @@ public class UsersController : ControllerBase
         }
     }
 
-    // --- Private helper ---
+    // Private helper
     private async Task VerifyUserNameIsAvailableAsync(string userName)
     {
         var existing = userRepo.GetManyAsync()

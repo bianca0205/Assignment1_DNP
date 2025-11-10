@@ -25,7 +25,6 @@ public class PostsController : ControllerBase
     {
         try
         {
-            // Optional: Verify user exists
             var user = await userRepo.GetSingleAsync(request.UserId);
             if (user == null)
                 return BadRequest($"User with id {request.UserId} not found");

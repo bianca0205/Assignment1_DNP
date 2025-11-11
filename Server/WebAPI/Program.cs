@@ -1,48 +1,40 @@
-using FileRepositories;
-using RepositoryContracts;
+using BlazorApp.Auth;
+using BlazorApp.Components;
+using BlazorApp.Services.Comment;
+using BlazorApp.Services.Post;
+using BlazorApp.Services.User;
+using Microsoft.AspNetCore.Components.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.ConfigureKestrel(options =>
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
+
+builder.Services.AddScoped(sp => new HttpClient
 {
-    options.ListenLocalhost(5005);
-    options.ListenLocalhost(7005, listenOptions =>
-    {
-        listenOptions.UseHttps();
-    });
+    BaseAddress = new Uri("https://localhost:7005")
 });
 
-builder.Services.AddControllers();
+builder.Services.AddScoped<IUserService, HttpUserService>();
+builder.Services.AddScoped<IPostService, HttpPostService>();
+builder.Services.AddScoped<ICommentService, HttpCommentService>();
+//builder.Services.AddScoped<ISubForumRepository, HttpSubForumService>();
 
-builder.Services.AddScoped<IUserRepository, UserFileRepository>();
-builder.Services.AddScoped<IPostRepository, PostFileRepository>();
-builder.Services.AddScoped<ICommentRepository, CommentFileRepository>();
-builder.Services.AddScoped<ISubForumRepository, SubForumFileRepository>();
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowBlazor", policy =>
-    {
-        policy.WithOrigins(
-                "https://localhost:7023",
-                "http://localhost:5107"
-            )
-            .AllowAnyHeader()
-            .AllowAnyMethod();
-    });
-});
+builder.Services.AddScoped<AuthenticationStateProvider, SimpleAuthProvider>();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+if (!app.Environment.IsDevelopment())
 {
-    app.UseDeveloperExceptionPage();
+    app.UseExceptionHandler("/Error");
+    app.UseHsts();
 }
 
 app.UseHttpsRedirection();
-app.UseCors("AllowBlazor");
-app.UseAuthorization();
+app.MapStaticAssets();
+app.UseAntiforgery();
 
-app.MapControllers();
+app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode();
 
 app.Run();

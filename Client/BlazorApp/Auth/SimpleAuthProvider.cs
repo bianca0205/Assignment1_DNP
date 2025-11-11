@@ -35,14 +35,12 @@ public class SimpleAuthProvider : AuthenticationStateProvider
         List<Claim> claims = new List<Claim>()
         {
             new Claim(ClaimTypes.Name, userDto.UserName), 
-            new Claim("Id", userDto.Id.ToString()),
-            // Add more claims here with your own claim type as a string, e.g.:
-            // new Claim("DateOfBirth", userDto.DateOfBirth.ToString("yyyy-MM-dd"))
-            // new Claim("Role", userDto.Role)
-            // new Claim("Email", userDto.Email)
+            new Claim("Id", userDto.Id.ToString())
             };
+        
             ClaimsIdentity identity = new ClaimsIdentity(claims, "apiauth");
             currentClaimsPrincipal = new ClaimsPrincipal(identity);
+            
             NotifyAuthenticationStateChanged(
                 Task.FromResult(new AuthenticationState(currentClaimsPrincipal))
                 );

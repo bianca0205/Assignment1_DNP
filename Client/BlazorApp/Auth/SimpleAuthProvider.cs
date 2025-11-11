@@ -58,6 +58,4 @@ public class SimpleAuthProvider : AuthenticationStateProvider
         currentClaimsPrincipal = new();
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(currentClaimsPrincipal)));
     }
-    
-    
 }

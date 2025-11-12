@@ -38,10 +38,8 @@ public class CommentsController : ControllerBase
             if (post == null)
                 return BadRequest($"Post with id {request.PostId} not found");
 
-            Comment comment = new(request.Body, request.UserId, request.PostId)
-            {
-                Body = null
-            };
+            Comment comment = new Comment(request.Body, request.UserId,
+                request.PostId);
             Comment created = await commentRepo.AddAsync(comment);
 
             CommentDto dto = new()
@@ -130,6 +128,31 @@ public class CommentsController : ControllerBase
         };
         return Ok(dto);
     }
+
+    [HttpGet("/posts/{postId}/comments")]
+    public async Task<ActionResult<IEnumerable<CommentDto>>>
+        GetCommentsByPostId(int postId)
+    {
+        var comments = commentRepo.GetManyAsync().Where(c => c.PostId == postId)
+            .ToList();
+
+        var dtos = comments.Select(c =>
+        {
+            var user = userRepo.GetSingleAsync(c.UserId).Result;
+            return new CommentDto
+            {
+                Id = c.Id,
+                Body = c.Body,
+                UserId = c.UserId,
+                UserName = user?.UserName ?? string.Empty,
+                PostId = c.PostId
+            };
+        });
+
+        await Task.CompletedTask;
+        return Ok(dtos);
+    }
+
 
     // DELETE /comments/{id}
     [HttpDelete("{id:int}")]

@@ -5,36 +5,27 @@ namespace BlazorApp.Services.Comment;
 
 public class HttpCommentService : ICommentService
 {
-    private readonly HttpClient client;
+    private readonly HttpClient httpClient;
 
-    public HttpCommentService(HttpClient client)
+    public HttpCommentService(HttpClient httpClient)
     {
-        this.client = client;
+        this.httpClient = httpClient;
     }
 
-    public async Task<CommentDto> AddCommentAsync(CreateCommentDto request)
+    public async Task<CommentDto> AddCommentAsync(CreateCommentDto comment)
     {
-        HttpResponseMessage httpResponse =
-            await client.PostAsJsonAsync("comments", request);
-        string response = await httpResponse.Content.ReadAsStringAsync();
+        HttpResponseMessage response = await httpClient.PostAsJsonAsync("comments", comment);
+        response.EnsureSuccessStatusCode();
 
-        if (!httpResponse.IsSuccessStatusCode)
-        {
-            throw new Exception(response);
-        }
-
-        return JsonSerializer.Deserialize<CommentDto>(response,
-            new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            })!;
+        CommentDto created = await response.Content.ReadFromJsonAsync<CommentDto>();
+        return created;
     }
 
     public async Task<IEnumerable<CommentDto>> GetCommentsByPostIdAsync(
         int postId)
     {
         HttpResponseMessage httpResponse =
-            await client.GetAsync($"posts/{postId}/comments");
+            await httpClient.GetAsync($"posts/{postId}/comments");
         string response = await httpResponse.Content.ReadAsStringAsync();
 
         if (!httpResponse.IsSuccessStatusCode)
@@ -52,7 +43,7 @@ public class HttpCommentService : ICommentService
     public async Task DeleteCommentAsync(int id)
     {
         HttpResponseMessage httpResponse =
-            await client.DeleteAsync($"comments/{id}");
+            await httpClient.DeleteAsync($"comments/{id}");
 
         if (!httpResponse.IsSuccessStatusCode)
         {

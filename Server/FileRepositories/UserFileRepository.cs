@@ -6,10 +6,15 @@ namespace FileRepositories;
 
 public class UserFileRepository : IUserRepository
 {
-    private readonly string filePath = Path.Combine(AppContext.BaseDirectory, "users.json");
+    private readonly string filePath = Path.Combine(
+        Directory.GetCurrentDirectory(),
+        "users.json");
+
 
     public UserFileRepository()
     {
+        Console.WriteLine($"[UserFileRepository] Using path: {filePath}");
+
         if (!File.Exists(filePath))
         {
             File.WriteAllText(filePath, "[]");
@@ -21,18 +26,21 @@ public class UserFileRepository : IUserRepository
             users.Add(new User { Id = 1, UserName = "Admin", Password = "Admin" });
             users.Add(new User { Id = 2, UserName = "User", Password = "User" });
             SaveUsersAsync(users).Wait();
+            Console.WriteLine("[UserFileRepository] Default users created.");
         }
     }
 
     private async Task<List<User>> LoadUsersAsync()
     {
         string usersAsJson = await File.ReadAllTextAsync(filePath);
-        return JsonSerializer.Deserialize<List<User>>(usersAsJson) ?? new List<User>();
+        return JsonSerializer.Deserialize<List<User>>(usersAsJson) ??
+               new List<User>();
     }
 
     private async Task SaveUsersAsync(List<User> users)
     {
-        string usersAsJson = JsonSerializer.Serialize(users, new JsonSerializerOptions { WriteIndented = true });
+        string usersAsJson = JsonSerializer.Serialize(users,
+            new JsonSerializerOptions { WriteIndented = true });
         await File.WriteAllTextAsync(filePath, usersAsJson);
     }
 
@@ -80,6 +88,7 @@ public class UserFileRepository : IUserRepository
     public async Task<User> GetByUsernameAsync(string username)
     {
         var users = await LoadUsersAsync();
-        return users.FirstOrDefault(u => u.UserName.Equals(username, StringComparison.OrdinalIgnoreCase));
+        return users.FirstOrDefault(u =>
+            u.UserName.Equals(username, StringComparison.OrdinalIgnoreCase));
     }
 }

@@ -1,6 +1,5 @@
 using BlazorApp.Auth;
 using BlazorApp.Components;
-using BlazorApp.Services;
 using BlazorApp.Services.Comment;
 using BlazorApp.Services.Post;
 using BlazorApp.Services.User;
@@ -8,25 +7,27 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add Blazor components
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Register HttpClient with base address pointing to Web API
+// Configure HttpClient for Web API calls
 builder.Services.AddScoped(sp => new HttpClient
 {
-    BaseAddress = new Uri("https://localhost:7005")
+    BaseAddress = new Uri("https://localhost:7005") // Web API base URL
 });
 
-// Register your HTTP services
+// Register services
 builder.Services.AddScoped<IUserService, HttpUserService>();
 builder.Services.AddScoped<IPostService, HttpPostService>();
 builder.Services.AddScoped<ICommentService, HttpCommentService>();
+
+// Authentication provider
 builder.Services.AddScoped<AuthenticationStateProvider, SimpleAuthProvider>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Production error handling
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");

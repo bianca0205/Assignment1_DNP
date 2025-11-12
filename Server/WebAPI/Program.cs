@@ -1,40 +1,39 @@
-using BlazorApp.Auth;
-using BlazorApp.Components;
-using BlazorApp.Services.Comment;
-using BlazorApp.Services.Post;
-using BlazorApp.Services.User;
-using Microsoft.AspNetCore.Components.Authorization;
+using FileRepositories;
+using RepositoryContracts;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+// Add controllers
+builder.Services.AddControllers();
 
-builder.Services.AddScoped(sp => new HttpClient
+// Register repositories
+builder.Services.AddScoped<IUserRepository, UserFileRepository>();
+builder.Services.AddScoped<IPostRepository, PostFileRepository>();
+builder.Services.AddScoped<ICommentRepository, CommentFileRepository>();
+builder.Services.AddScoped<ISubForumRepository, SubForumFileRepository>();
+
+// Enable CORS so the Blazor app can call this API
+builder.Services.AddCors(options =>
 {
-    BaseAddress = new Uri("https://localhost:7005")
+    options.AddPolicy("AllowBlazor", policy =>
+    {
+        policy.WithOrigins("https://localhost:7023") // Blazor app runs here (HTTPS)
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
 });
-
-builder.Services.AddScoped<IUserService, HttpUserService>();
-builder.Services.AddScoped<IPostService, HttpPostService>();
-builder.Services.AddScoped<ICommentService, HttpCommentService>();
-//builder.Services.AddScoped<ISubForumRepository, HttpSubForumService>();
-
-builder.Services.AddScoped<AuthenticationStateProvider, SimpleAuthProvider>();
 
 var app = builder.Build();
 
-if (!app.Environment.IsDevelopment())
+// Show detailed errors in development
+if (app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error");
-    app.UseHsts();
+    app.UseDeveloperExceptionPage();
 }
 
 app.UseHttpsRedirection();
-app.MapStaticAssets();
-app.UseAntiforgery();
-
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+app.UseCors("AllowBlazor");
+app.UseAuthorization();
+app.MapControllers();
 
 app.Run();

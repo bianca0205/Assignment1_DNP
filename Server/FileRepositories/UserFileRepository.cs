@@ -6,15 +6,10 @@ namespace FileRepositories;
 
 public class UserFileRepository : IUserRepository
 {
-    private readonly string filePath = Path.Combine(
-        Directory.GetCurrentDirectory(),
-        "users.json");
-
+    private readonly string filePath = Path.Combine(Directory.GetCurrentDirectory(), "users.json");
 
     public UserFileRepository()
     {
-        Console.WriteLine($"[UserFileRepository] Using path: {filePath}");
-
         if (!File.Exists(filePath))
         {
             File.WriteAllText(filePath, "[]");
@@ -26,7 +21,6 @@ public class UserFileRepository : IUserRepository
             users.Add(new User { Id = 1, UserName = "Admin", Password = "Admin" });
             users.Add(new User { Id = 2, UserName = "User", Password = "User" });
             SaveUsersAsync(users).Wait();
-            Console.WriteLine("[UserFileRepository] Default users created.");
         }
     }
 

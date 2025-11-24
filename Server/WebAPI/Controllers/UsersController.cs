@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using RepositoryContracts;
 using ApiContracts;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebAPI.Controllers;
 
@@ -53,11 +54,10 @@ public class UsersController : ControllerBase
         if (!string.IsNullOrWhiteSpace(usernameContains))
         {
             query = query.Where(u =>
-                u.UserName.Contains(usernameContains,
-                    StringComparison.OrdinalIgnoreCase));
+                u.UserName.ToLower().Contains(usernameContains.ToLower()));
         }
 
-        var users = query.ToList();
+        var users = await query.ToListAsync();
 
         var dtos = users.Select(u => new UserDto
         {
@@ -119,14 +119,11 @@ public class UsersController : ControllerBase
     // Private helper
     private async Task VerifyUserNameIsAvailableAsync(string userName)
     {
-        var existing = userRepo.GetManyAsync()
-            .FirstOrDefault(u =>
-                u.UserName.Equals(userName,
-                    StringComparison.OrdinalIgnoreCase));
+        var existing = await userRepo.GetManyAsync()
+            .FirstOrDefaultAsync(u =>
+                u.UserName.ToLower() == userName.ToLower());
 
         if (existing != null)
             throw new Exception("Username already in use");
-
-        await Task.CompletedTask;
     }
 }

@@ -1,6 +1,7 @@
 ﻿using ApiContracts.CommentVote;
 using Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using RepositoryContracts;
 
 namespace WebAPI.Controllers;
@@ -38,8 +39,8 @@ public class CommentVotesController : ControllerBase
                 return BadRequest(
                     $"Comment with id {request.CommentId} not found");
             // Check if user already voted on this comment
-            var existingVote = commentVoteRepo.GetManyAsync()
-                .FirstOrDefault(v =>
+            var existingVote = await commentVoteRepo.GetManyAsync()
+                .FirstOrDefaultAsync(v =>
                     v.UserId == request.UserId &&
                     v.CommentId == request.CommentId);
             if (existingVote != null)
@@ -80,7 +81,7 @@ public class CommentVotesController : ControllerBase
             query = query.Where(v => v.CommentId == commentId.Value);
         }
 
-        var entities = query.ToList();
+        var entities = await query.ToListAsync();
         var dtos = entities.Select(v => new CommentVoteDto
         {
             Id = v.Id,

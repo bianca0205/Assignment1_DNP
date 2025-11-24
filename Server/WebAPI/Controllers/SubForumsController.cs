@@ -2,6 +2,7 @@
 using ApiContracts.SubForum;
 using Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using RepositoryContracts;
 
 namespace WebAPI.Controllers;
@@ -61,10 +62,10 @@ public class SubForumsController : ControllerBase
         if (!string.IsNullOrWhiteSpace(nameContains))
         {
             query = query.Where(sf => 
-                sf.Name.Contains(nameContains, StringComparison.OrdinalIgnoreCase));
+                sf.Name.ToLower().Contains(nameContains.ToLower())); // CHANGED
         }
 
-        var subForums = query.ToList();
+        var subForums = await query.ToListAsync(); // CHANGED
 
         var dtos = subForums.Select(sf => new SubForumDto
         {
@@ -73,7 +74,6 @@ public class SubForumsController : ControllerBase
             Description = sf.Description
         });
 
-        await Task.CompletedTask;
         return Ok(dtos);
     }
 
@@ -109,16 +109,16 @@ public class SubForumsController : ControllerBase
         if (!string.IsNullOrWhiteSpace(titleContains))
         {
             query = query.Where(p => 
-                p.Title.Contains(titleContains, StringComparison.OrdinalIgnoreCase));
+                p.Title.ToLower().Contains(titleContains.ToLower())); // CHANGED
         }
 
-        var posts = query.ToList();
+        var posts = await query.ToListAsync(); // CHANGED
 
         var dtos = posts.Select(p =>
         {
             var user = userRepo.GetManyAsync()
-                .FirstOrDefault(u => u.Id == p.UserId);
-            
+                .FirstOrDefault(u => u.Id == p.UserId); // This is still problematic - see below
+        
             return new PostDto
             {
                 Id = p.Id,
@@ -130,7 +130,6 @@ public class SubForumsController : ControllerBase
             };
         });
 
-        await Task.CompletedTask;
         return Ok(dtos);
     }
 
@@ -185,13 +184,11 @@ public class SubForumsController : ControllerBase
     // Private helper
     private async Task VerifyNameIsAvailableAsync(string name)
     {
-        var existing = subForumRepo.GetManyAsync()
-            .FirstOrDefault(sf => 
-                sf.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        var existing = await subForumRepo.GetManyAsync()
+            .FirstOrDefaultAsync(sf => 
+                sf.Name.ToLower() == name.ToLower()); // CHANGED
 
         if (existing != null)
             throw new Exception("SubForum name already in use");
-
-        await Task.CompletedTask;
     }
 }

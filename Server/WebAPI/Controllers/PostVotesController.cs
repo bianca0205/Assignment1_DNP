@@ -1,6 +1,7 @@
 ﻿using ApiContracts.PostVote;
 using Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using RepositoryContracts;
 
 namespace WebAPI.Controllers;
@@ -38,8 +39,8 @@ public class PostVotesController : ControllerBase
                 return BadRequest($"Post with id {request.PostId} not found");
 
             // Check if user already voted on this post
-            var existingVote = postVoteRepo.GetManyAsync()
-                .FirstOrDefault(v => v.UserId == request.UserId && v.PostId == request.PostId);
+            var existingVote = await postVoteRepo.GetManyAsync()
+                .FirstOrDefaultAsync(v => v.UserId == request.UserId && v.PostId == request.PostId);
 
             if (existingVote != null)
                 return BadRequest("User has already voted on this post");
@@ -82,7 +83,7 @@ public class PostVotesController : ControllerBase
             query = query.Where(v => v.PostId == postId.Value);
         }
 
-        var votes = query.ToList();
+        var votes = await query.ToListAsync();
 
         var dtos = votes.Select(v => new PostVoteDto
         {

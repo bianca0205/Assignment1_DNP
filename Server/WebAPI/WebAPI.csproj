@@ -8,6 +8,10 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0">
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+          <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
         <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.14.0" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="7.0.0" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
@@ -15,6 +19,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\Client\BlazorApp\BlazorApp.csproj" />
+        <ProjectReference Include="..\EfcRepositories\EfcRepositories.csproj" />
         <ProjectReference Include="..\RepositoryContracts\RepositoryContracts.csproj" />
         <ProjectReference Include="..\FileRepositories\FileRepositories.csproj" />
         <ProjectReference Include="..\..\Shared\ApiContracts\ApiContracts.csproj" />

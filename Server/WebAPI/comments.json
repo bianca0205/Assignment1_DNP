@@ -1,0 +1,9 @@
+[
+    {
+    "Id": 1,
+    "Body": "Me too!",
+    "PostId": 2,
+    "UserId": 1,
+    "ParentCommentId": null
+  }
+]
